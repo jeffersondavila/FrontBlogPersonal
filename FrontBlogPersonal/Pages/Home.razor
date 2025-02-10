@@ -1,7 +1,92 @@
 ﻿@page "/"
+@inject IJSRuntime JSRuntime
+@inject IBlogService blogService
+@inject NavigationManager navigationManager
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
 
-<PageTitle>Home</PageTitle>
+<h3>Listado de Blogs</h3>
 
-<h1>Hello, world!</h1>
+@if(isAuthenticated)
+{
+    <button class="btn btn-primary me-2" title="Crear Blog" @onclick="() => NavigateCreateBlog()">
+        <i class="bi bi-save" aria-hidden="true"></i>
+    </button>
+}
 
-Welcome to your new app.
+@if (blogs == null)
+{
+    <p>Cargando blogs...</p>
+}
+else if (!blogs.Any())
+{
+    <p>No hay blogs disponibles.</p>
+}
+else
+{
+    <div class="blog-container">
+        @foreach (var blog in blogs)
+        {
+            <div class="card">
+                <div class="card-body">
+                    <h3>@blog.Titulo</h3>
+                    <p>@blog.Contenido</p>
+                    <small>Creado el: @blog.FechaCreacion.ToString("dd/MM/yyyy")</small>
+
+                    @if (isAuthenticated)
+                    {
+                        <br />
+                        <button class="btn btn-primary me-2" title="Ver Detalle" @onclick="() => NavigateToBlogDetail(blog.CodigoBlog)">
+                            <i class="bi bi-eye" aria-hidden="true"></i>
+                        </button>
+                        <button class="btn btn-danger" title="Eliminar Blog" @onclick="() => DeleteBlog(blog.CodigoBlog)">
+                            <i class="bi bi-trash" aria-hidden="true"></i>
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<BlogModel>? blogs;
+    private bool isAuthenticated;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Verificar si el token existe en el localStorage
+        var token = await localStorage.GetItemAsync<string>("authToken");
+        isAuthenticated = !string.IsNullOrEmpty(token);
+
+        // Cargar los blogs
+        blogs = await blogService.GetBlogs(1, 10);
+    }
+
+    private void NavigateToBlogDetail(int blogId)
+    {
+        // Navegar a la página de detalles del blog
+        navigationManager.NavigateTo($"/blog/{blogId}");
+    }
+
+    private void NavigateCreateBlog()
+    {
+        navigationManager.NavigateTo("/blog/");
+    }
+
+    private async Task DeleteBlog(int blogId)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"¿Estás seguro de eliminar el blog con ID {blogId}?");
+        if (!confirmed) return;
+
+        var success = await blogService.DeleteBlog(blogId);
+        if (success)
+        {
+            blogs = blogs?.Where(b => b.CodigoBlog != blogId).ToList();
+            Console.WriteLine($"Blog con ID {blogId} eliminado.");
+        }
+        else
+        {
+            Console.WriteLine($"Error al eliminar el blog con ID {blogId}.");
+        }
+    }
+}
