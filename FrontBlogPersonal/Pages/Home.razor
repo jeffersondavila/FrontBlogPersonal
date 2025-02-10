@@ -9,7 +9,8 @@
 @if(isAuthenticated)
 {
     <button class="btn btn-primary me-2" title="Crear Blog" @onclick="() => NavigateCreateBlog()">
-        <i class="bi bi-save" aria-hidden="true"></i>
+        <i class="bi bi-save pe-1" aria-hidden="true"></i>
+        <span>Crear Blog</span>
     </button>
 }
 
@@ -36,10 +37,12 @@ else
                     {
                         <br />
                         <button class="btn btn-primary me-2" title="Ver Detalle" @onclick="() => NavigateToBlogDetail(blog.CodigoBlog)">
-                            <i class="bi bi-eye" aria-hidden="true"></i>
+                            <i class="bi bi-eye pe-1" aria-hidden="true"></i>
+                            <span>Modificar Blog</span>
                         </button>
                         <button class="btn btn-danger" title="Eliminar Blog" @onclick="() => DeleteBlog(blog.CodigoBlog)">
-                            <i class="bi bi-trash" aria-hidden="true"></i>
+                            <i class="bi bi-trash pe-1" aria-hidden="true"></i>
+                            <span>Eliminar Blog</span>
                         </button>
                     }
                 </div>
