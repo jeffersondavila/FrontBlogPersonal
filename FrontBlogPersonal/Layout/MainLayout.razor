@@ -11,10 +11,10 @@
         <div class="top-row px-4">
             @if (!isAuthenticated)
             {
-                <NavLink class="nav-link btn btn-primary text-white" href="login">
+                <button class="nav-link btn btn-primary text-white" @onclick="Login">
                     <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span>
                     <span>Login</span>
-                </NavLink>
+                </button>
             }
             else
             {
@@ -38,6 +38,11 @@
     {
         var token = await localStorage.GetItemAsync<string>("authToken");
         isAuthenticated = !string.IsNullOrEmpty(token);
+    }
+
+    private async Task Login()
+    {
+        Navigation.NavigateTo("/login");
     }
 
     private async Task Logout()
