@@ -1,4 +1,6 @@
 ﻿@inherits LayoutComponentBase
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
 <div class="page">
     <div class="sidebar">
         <NavMenu />
@@ -7,7 +9,15 @@
     <main>
         <div class="top-row px-4">
             <NavLink class="nav-link" href="login">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Login
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span>
+                @if(!isAuthenticated)
+                {
+                    <span>Login</span>
+                }
+                else
+                {
+                    <span>Sign out</span>
+                }
             </NavLink>
         </div>
 
@@ -16,3 +26,14 @@
         </article>
     </main>
 </div>
+
+@code {
+    private bool isAuthenticated;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Verificar si el token existe en el localStorage
+        var token = await localStorage.GetItemAsync<string>("authToken");
+        isAuthenticated = !string.IsNullOrEmpty(token);
+    }
+}
